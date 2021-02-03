@@ -5,23 +5,23 @@
 %% Define Inital Conditions
 
 t0=0;                                  % Start time 
-tend = 100;                             % End time
+tend = 300;                             % End time
 tspan = t0:1:tend;                     % Time Span
 
 x0(1) = 0; % 50;                           % Altitude y(1)
 x0(2) = 0; %10;                            % Velocity y(2)
-x0(3) = 90*pi/180;                     % Flight path angle y(3)
+x0(3) = 90*pi/180;                         % Flight path angle y(3)
 x0(4) = 0; %20.*(pi./180);                 % Flight heading angle y(4)
 x0(5) = 0; %58.5127.*(pi./180);            % Latitude y(5)
 x0(6) = 0; %-4.5121.*(pi./180);            % Longitude y(6)
-x0(7) = 2466;                          % Mass of the vehicle y(7)
+x0(7) = 2466;                              % Mass of the vehicle y(7)
 
 %% Apply ODE Solver and Controls
 
 % Supplying simulation with trial and error controls, not optimised. Best
 % guess 
 
-control =[100; 0;0;0;0;0; 1;1;1;1;1; 0;0;0;0;0]; % [Time; Angle of Attack; Throttle; Bank Angle]
+control =[100; 0;0;0;0;0; 1;1;1;0;0; 0;0;0;0;0]; % [Time; Angle of Attack; Throttle; Bank Angle]
 
 x = ode3(@(t,x)dynamics_model(t,x,control),tspan,x0);
 
