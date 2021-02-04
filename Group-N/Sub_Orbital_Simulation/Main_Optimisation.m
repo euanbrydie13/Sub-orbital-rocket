@@ -1,6 +1,6 @@
 %% Optimal Control problem
 
-control_0 = [225; 0;0;0.4;0.6;1; 1;1;1;0;0; 0;0;0;0;0]; %initial input
+control_0 = [300; 0;0;0.4;0.6;1; 1;1;0;0;0; 0;0;0;0;0]; %initial input
 options = optimoptions('fmincon','Display','iter-detailed','Algorithm','sqp');
 
 [control_opt,fval,exitflag,output] = fmincon(@Cost_Function,control_0,[],[],[],[],[],[],@Non_Linear_Constraints,options);

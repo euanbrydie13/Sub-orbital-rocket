@@ -35,11 +35,8 @@ m = x(7);   % vehicle mass, kg
 
 %% Gravity model
 
-rE = 6378137.00*(1-(1/298.257223563)*sin(lat)^2);
-%rE = 6378137;               % Earths radius [m]
+rE = 6378137.00*(1-(1/298.257223563)*sin(lat)^2); % Earths radius [m]           
 r = h + rE;                 % Distance from centre of the earth [m]
-g = 9.8066.*(rE./r)^2;      % Value of gravity at given altitiude [ms-2]
-% gr = g; gt =0;             % Radial and Tangential gravitational acceleration [Tangential assumed to be zero]
 wE = 7.292118e-05;          % Angular rotation of earth [rads-1]
 mu = 3.986004418e14;        % Geocentric constant of gravitation (GM) [m3/s2], ref: IERS Numerical Standards
 J2 = 1.0826359e-3;          % Second degree term in Earth's gravity potential, ref: IERS Numerical Standards
@@ -68,8 +65,6 @@ if h <= 0 || m <= 0
     return 
 end
 
-
-% Equations taken from Tropico folder/Derivation avaiable in dissertation
 dh = v.*sin(fpa);
 dlat = v.*cos(fpa).*cos(chi)./r;
 if  abs(lat-(pi/2)) < eps(1)
