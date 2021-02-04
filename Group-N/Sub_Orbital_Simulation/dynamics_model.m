@@ -34,17 +34,40 @@ m = x(7);   % vehicle mass, kg
 [L, D] = Aerodynamic_model(x,vehicle,dens);
 
 %% Gravity model
-rE = 6378137;               % Earths radius [m]
+
+rE = 6378137.00*(1-(1/298.257223563)*sin(lat)^2);
+%rE = 6378137;               % Earths radius [m]
 r = h + rE;                 % Distance from centre of the earth [m]
 g = 9.8066.*(rE./r)^2;      % Value of gravity at given altitiude [ms-2]
-gr = g; gt = 0;             % Radial and Tangential gravitational acceleration [Tangential assumed to be zero]
-wE = 7.292118.*10^-05;      % Angular rotation of earth [rads-1]
+% gr = g; gt =0;             % Radial and Tangential gravitational acceleration [Tangential assumed to be zero]
+wE = 7.292118e-05;          % Angular rotation of earth [rads-1]
+mu = 3.986004418e14;        % Geocentric constant of gravitation (GM) [m3/s2], ref: IERS Numerical Standards
+J2 = 1.0826359e-3;          % Second degree term in Earth's gravity potential, ref: IERS Numerical Standards
+J3=2.532153e-7;
+J4=1.6109876e-7;
+
+
+phi=pi/2-lat;
+
+gr=(mu/r^2*(1 - 1.5*J2*(3*cos(phi)^2-1)*(rE/r)^2 ...
+    -2*J3*cos(phi)*(5*cos(phi)^2-3)*(rE/r)^3 ...
+    -(5/8)*J4*(35*cos(phi)^4-30*cos(phi)^2+3)*(rE/r)^4));
+gt=-3*mu*sin(phi)*cos(phi)*(rE/r)^2*(J2+0.5*J3*(5*cos(phi)^2-1)...
+    *(rE/r)/cos(phi)+(5/6)*J4*(7*cos(phi)^2-1)*(rE/r)^2)/r^2;
+
 
 %% Propulsion Model
 
 [FT, mp] = propulsion_model(throttle,vehicle,press);
 
 %% 3DOF Dynamic Equations (6 ODEs)
+
+if h <= 0 || m <= 0 
+    dx =zeros(7,1);
+    disp('Vehicle failure (either alt = 0 or mass < 0)');
+    return 
+end
+
 
 % Equations taken from Tropico folder/Derivation avaiable in dissertation
 dh = v.*sin(fpa);
@@ -61,25 +84,25 @@ dv = Fx + wE.^2.*r.*cos(lat).*(sin(fpa).*cos(lat) - cos(fpa).*cos(chi).*sin(lat)
 if abs(v) < eps(1)
     dfpa = 0;
 else
-%     Fz = ((FT.*sin(alpha)+L).*cos(bank))./m -  - gt.*sin(fpa).*cos(chi);
-%     
-%     dfpa = (v/r).*cos(fpa) + Fz./v + (wE^2.*r./v).*cos(lat).*(sin(fpa).*cos(chi).*sin(lat) + cos(fpa).*cos(lat)) + 2.*wE.*sin(chi).*cos(lat);
+   Fz = ((FT*sin(alpha)+L)*cos(bank))/m - gt*sin(fpa)*cos(chi);
+     
+   dfpa = (v/r)*cos(fpa) + Fz/v + (wE^2*r/v)*cos(lat)*(sin(fpa)*cos(chi)*sin(lat) + cos(fpa)*cos(lat)) + 2*wE*sin(chi)*cos(lat);
     
     
-dfpa =  ((FT.*sin(alpha)+L).*cos(bank))./(v.*m) - (gr.*cos(fpa))./v + ((wE^2.*r.*cos(lat))./v).*(sin(fpa).*cos(chi).*sin(lat) + cos(fpa).*cos(lat)) + 2.*wE.*sin(chi).*cos(lat);
+%dfpa =  ((FT.*sin(alpha)+L).*cos(bank))./(v.*m) - (gr.*cos(fpa))./v + ((wE^2.*r.*cos(lat))./v).*(sin(fpa).*cos(chi).*sin(lat) + cos(fpa).*cos(lat)) + 2.*wE.*sin(chi).*cos(lat);
         
 end
 
 if (abs(lat - pi/2) < eps(1) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < eps(1) || abs(v) < eps(1))
      dchi = 0;
 else
-   %Fy = ((FT.*sin(alpha)+L).*sin(bank))./m - gt.*sin(chi);
+   Fy = ((FT*sin(alpha)+L)*sin(bank))/m - gt*sin(chi);
    
-   %dchi = (v./r).*cos(fpa).*sin(chi).*tan(lat) + Fy./(v.*cos(fpa)) ...
-    %   + wE^2.*r.*(sin(chi).*sin(lat).*cos(lat))./(v.*cos(fpa)) + 2.*wE.*(sin(lat)-tan(fpa).*cos(chi).*cos(lat));
+   dchi = (v/r)*cos(fpa)*sin(chi)*tan(lat) + Fy/(v*cos(fpa)) ...
+       + wE^2*r*(sin(chi)*sin(lat)*cos(lat))/(v*cos(fpa)) + 2*wE*(sin(lat)-tan(fpa)*cos(chi)*cos(lat));
    
-   dchi = ((FT.*sin(alpha)+L).*sin(bank))./(v.*cos(fpa).*m) ...
-       + (wE^2.*r.*sin(chi).*sin(lat).*cos(lat))./(v.*cos(fpa)) + 2.*wE.*(sin(lat)-tan(fpa).*cos(chi).*cos(lat));
+   %dchi = ((FT.*sin(alpha)+L).*sin(bank))./(v.*cos(fpa).*m) ...
+   %    + (wE^2.*r.*sin(chi).*sin(lat).*cos(lat))./(v.*cos(fpa)) + 2.*wE.*(sin(lat)-tan(fpa).*cos(chi).*cos(lat));
    
 end
 dm = -mp;
@@ -87,3 +110,4 @@ dm = -mp;
 dx = [dh; dv; dfpa; dchi; dlat; dlon; dm];
 
 end
+

@@ -4,17 +4,17 @@
 
 %% Define Inital Conditions
 
-control =[200; 0;0;0;0;0; 1;1;0;0;0; 0;0;0;0;0]; % [Time; Angle of Attack; Throttle; Bank Angle]
+control =[300; 0;0;0;0;0; 1;1;0;0;0; 0;0;0;0;0]; % [Time; Angle of Attack; Throttle; Bank Angle]
 
 t0=0;                                      % Start time                                
 tspan = t0:1:control(1);                   % Time Span
 
-x0(1) = 0;                                 % Altitude x(1)
+x0(1) = 10;                                 % Altitude x(1)
 x0(2) = 0;                                 % Velocity x(2)
-x0(3) = 75*pi/180;                         % Flight path angle x(3)
+x0(3) = 90*pi/180;                         % Flight path angle x(3)
 x0(4) = 0.*(pi./180);                      % Flight heading angle x(4)
-x0(5) = 0; %58.5127.*(pi./180);            % Latitude x(5)
-x0(6) = 0; %-4.5121.*(pi./180);            % Longitude x(6)
+x0(5) = 58.5127.*(pi./180);            % Latitude x(5)
+x0(6) = -4.5121.*(pi./180);            % Longitude x(6)
 x0(7) = 2466;                              % Mass of the vehicle x(7)
 
 %% Apply ODE Solver and Controls
