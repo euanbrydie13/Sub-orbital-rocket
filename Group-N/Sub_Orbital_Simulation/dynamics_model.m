@@ -8,9 +8,11 @@ throttle_all = control(n+2:n+6);
 bank_all = control(n+7:end);
 
 T = linspace(0, tof, n);
-alpha = interp1(T,alpha_all,t);
+alpha = interp1(T,alpha_all*(pi/180),t);
 throttle = interp1(T,throttle_all,t);
-bank = interp1(T,bank_all,t); 
+bank = interp1(T,bank_all,t);
+
+
 
 %% Vehicle Specifications
 
@@ -88,18 +90,18 @@ else
         
 end
 
-if (abs(lat - pi/2) < eps(1) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < eps(1) || abs(v) < eps(1))
+%if (abs(lat - pi/2) < eps(1) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < eps(1) || abs(v) < eps(1))
      dchi = 0;
-else
-   Fy = ((FT*sin(alpha)+L)*sin(bank))/m - gt*sin(chi);
-   
-   dchi = (v/r)*cos(fpa)*sin(chi)*tan(lat) + Fy/(v*cos(fpa)) ...
-       + wE^2*r*(sin(chi)*sin(lat)*cos(lat))/(v*cos(fpa)) + 2*wE*(sin(lat)-tan(fpa)*cos(chi)*cos(lat));
-   
-   %dchi = ((FT.*sin(alpha)+L).*sin(bank))./(v.*cos(fpa).*m) ...
+%else
+%    Fy = ((FT*sin(alpha)+L)*sin(bank))/m - gt*sin(chi);
+%    
+%    dchi = (v/r)*cos(fpa)*sin(chi)*tan(lat) + Fy/(v*cos(fpa)) ...
+%        + wE^2*r*(sin(chi)*sin(lat)*cos(lat))/(v*cos(fpa)) + 2*wE*(sin(lat)-tan(fpa)*cos(chi)*cos(lat));
+%    
+%    %dchi = ((FT.*sin(alpha)+L).*sin(bank))./(v.*cos(fpa).*m) ...
    %    + (wE^2.*r.*sin(chi).*sin(lat).*cos(lat))./(v.*cos(fpa)) + 2.*wE.*(sin(lat)-tan(fpa).*cos(chi).*cos(lat));
    
-end
+%end
 dm = -mp;
 
 dx = [dh; dv; dfpa; dchi; dlat; dlon; dm];

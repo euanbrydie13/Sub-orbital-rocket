@@ -4,7 +4,7 @@
 
 %% Define Inital Conditions
 
-control =[300; 0;10;10;10;10; 1;1;0;0;0; 0;0;0;0;0]; % [Time; Angle of Attack; Throttle; Bank Angle]
+control =[300; 0;0.;1;;1; 1;1;0;0;0; 0;0;0;0;0]; % [Time; Angle of Attack; Throttle; Bank Angle]
 
 t0=0;                                      % Start time                                
 tspan = t0:1:control(1);                   % Time Span
