@@ -59,11 +59,11 @@ gr =9.8;
 
 %% 3DOF Dynamic Equations (6 ODEs)
 
-if h <= 0 || m <= 0 
-    dx =zeros(7,1);
-    disp('Vehicle failure (either alt = 0 or mass < 0)');
-    return 
-end
+% if h <= 0 || m <= 0 
+%     dx =zeros(7,1);
+%     disp('Vehicle failure (either alt = 0 or mass < 0)');
+%     return 
+% end
 
 dh = v.*sin(fpa);
 dlat = (v.*cos(fpa).*sin(chi))./r;
@@ -73,26 +73,26 @@ else
     dlon = (v.*cos(fpa).*cos(chi))./(r.*cos(lat));
 end
 
-Fx = ((FT.*cos(alpha)-D)./m) - gr.*sin(fpa);
+Fx = ((FT.*cos(alpha+0.1)-D)./m) - gr.*sin(fpa);
 dv = Fx + wE.^2.*r.*cos(lat).*(sin(fpa).*cos(lat) - cos(fpa).*sin(chi).*sin(lat));
 
 if abs(v) < eps(1)
        dfpa = 0;
 else
 
-dfpa =((FT.*sin(alpha)+L)./(m.*v)).*cos(bank)+((gr./v)+(v./r)).*cos(fpa)...
+dfpa =((FT.*sin(alpha+0.1)+L)./(m.*v)).*cos(bank)+((gr./v)+(v./r)).*cos(fpa)...
       + 2.*wE.*cos(chi).*cos(lat)...
       + (wE.^2).*(r./v).*cos(fpa).*(sin(chi).*sin(fpa).*sin(lat) + cos(fpa).*cos(lat));
 
 end
  
-if  (abs(lat - pi/2) < eps(1)) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < eps(1) || abs(v) < eps(1)
+if  (abs(lat - pi/2) < eps(1) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < eps(1) || abs(v) < eps(1))
         dchi = 0;
 else
 
-dchi = ((FT.*sin(alpha)+L)./(m.*v.*cos(fpa))).*sin(bank) - (v./r).*cos(fpa).*cos(chi).*tan(lat)...
-     + 2.*wE.*(sin(chi).*cos(lat).*tan(fpa) - sin(lat))...
-     - (((wE.^2).*r)./(v.*cos(fpa))).*cos(lat).*sin(lat).*cos(chi);
+dchi = ((FT.*sin(alpha+0.1)+L)./(m.*v.*cos(fpa))).*sin(bank) - (v./r).*cos(fpa).*cos(chi).*tan(lat)...
+    + 2.*wE.*(sin(chi).*cos(lat).*tan(fpa) - sin(lat))...
+    - (wE.^2).*(r./(v.*cos(fpa))).*cos(lat).*sin(fpa).*cos(chi);
 
 end
 dm = -mp;
