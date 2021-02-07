@@ -80,7 +80,7 @@ if abs(v) < eps(1)
        dfpa = 0;
 else
 
-dfpa =((FT.*sin(alpha)+L)./(m.*v)).*cos(bank)+((gr./v)+(v./r)).*cos(fpa)...
+dfpa =((FT.*sin(alpha)+L)./(m.*v)).*cos(bank)-((gr./v)-(v./r)).*cos(fpa)...
       + 2.*wE.*cos(chi).*cos(lat)...
       + (wE.^2).*(r./v).*cos(fpa).*(sin(chi).*sin(fpa).*sin(lat) + cos(fpa).*cos(lat));
 
@@ -90,9 +90,9 @@ if  (abs(lat - pi/2) < eps(1)) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < 
         dchi = 0;
 else
 
-dchi = ((FT.*sin(alpha)+L)./(m.*v.*cos(fpa))).*sin(bank) - (v./r).*cos(fpa).*cos(chi).*tan(lat)...
+dchi = ((L)./(m.*v.*cos(fpa))).*sin(bank) - (v./r).*cos(fpa).*cos(chi).*tan(lat)...
      + 2.*wE.*(sin(chi).*cos(lat).*tan(fpa) - sin(lat))...
-     - (((wE.^2).*r)./(v.*cos(fpa))).*cos(lat).*sin(lat).*cos(chi);
+     - (((wE.^2).*r)./(v.*cos(fpa))).*cos(lat).*sin(fpa).*cos(chi);
 
 end
 dm = -mp;
