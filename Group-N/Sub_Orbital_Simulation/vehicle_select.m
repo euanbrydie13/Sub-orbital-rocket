@@ -9,4 +9,6 @@ switch vtype
         vehicle.aexit = pi.*(0.1).^2;        % Exit Nozzle Area  (Assumed - need to find appropriate value) [m^2]
         vehicle.isp = 229;                   % Specfic Impulse [s]
         vehicle.tvac = 30e3;                 % Thrust Force at Sea Level (kn)
+%         vehicle.exitV =                      % Exit velocity at nozzle 
+%         vehicle.fluidD =                     % Fluid density at nozzle 
 end
