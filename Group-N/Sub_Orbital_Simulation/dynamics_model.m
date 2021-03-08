@@ -12,8 +12,6 @@ alpha = interp1(T,alpha_all*(pi/180),t);
 throttle = interp1(T,throttle_all,t);
 bank = interp1(T,bank_all,t);
 
-
-
 %% Vehicle Specifications
 
 vehicle = vehicle_select;
@@ -66,6 +64,7 @@ if h <= 0 || m <= 0
 end
 
 dh = v.*sin(fpa);
+
 dlat = (v.*cos(fpa).*sin(chi))./r;
 if  abs(lat-(pi/2)) < eps(1)
        dlon = 0;
@@ -80,24 +79,23 @@ if abs(v) < eps(1)
        dfpa = 0;
 else
 
-dfpa =((FT.*sin(alpha)+L)./(m.*v)).*cos(bank)-((gr./v)-(v./r)).*cos(fpa)...
+dfpa =((FT.*sin(alpha)+L)./(m.*v)).*cos(bank)+((gr./v)+(v./r)).*cos(fpa)...
       + 2.*wE.*cos(chi).*cos(lat)...
-      + (wE.^2).*(r./v).*cos(fpa).*(sin(chi).*sin(fpa).*sin(lat) + cos(fpa).*cos(lat));
+      + (wE.^2).*(r./v).*cos(lat).*(cos(fpa).*cos(lat) + sin(chi).*sin(fpa).*sin(lat));
 
 end
  
-if  (abs(lat - pi/2) < eps(1)) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < eps(1) || abs(v) < eps(1)
-        dchi = 0;
-else
-
-dchi = ((L)./(m.*v.*cos(fpa))).*sin(bank) - (v./r).*cos(fpa).*cos(chi).*tan(lat)...
-     + 2.*wE.*(sin(chi).*cos(lat).*tan(fpa) - sin(lat))...
-     - (((wE.^2).*r)./(v.*cos(fpa))).*cos(lat).*sin(fpa).*cos(chi);
-
-end
+%if  (abs(lat - pi/2) < eps(1) || abs(lat + pi/2) < eps(1) || abs(fpa - pi/2) < eps(1) || abs(v) < eps(1))
+         dchi = 0;
+%else
+ 
+% dchi = ((FT.*sin(alpha)+L)./(m.*v.*cos(fpa))).*sin(bank) - (v./r).*cos(fpa).*cos(chi).*tan(lat)...     
+%         + 2.*wE.*(sin(chi).*cos(lat).*tan(fpa) - sin(lat))...
+%         - (((wE.^2).*r)./(v.*cos(fpa))).*cos(lat).*sin(lat).*cos(chi);
+  
+%end
 dm = -mp;
 
 dx = [dh; dv; dfpa; dchi; dlat; dlon; dm];
 
 end
-
