@@ -1,0 +1,103 @@
+%% Optimal Control problem - Single Shooting 3 stages
+
+tBurn = 70;
+tCoast = 100;
+tDescend = 140;
+
+%% Load Location and Heading Seletion
+location = location_select;
+
+%% Load Vehicle Selection
+vehicle = vehicle_select; 
+
+% Applying Lower and Upper Bounds on Controls
+
+tlower = 60;
+alphalower = -10.*(pi./180).*ones(5,1);
+throttlelower = zeros(5,1);
+banklower = -10.*(pi./180).*ones(5,1);
+
+tupper = 100;
+alphaupper= 15*(pi./180).*ones(5,1);
+throttleupper = ones(5,1);
+bankupper = 10.*(pi./180).*ones(5,1);
+
+LB = [tlower; alphalower; throttlelower; banklower];
+UB = [tupper; alphaupper; throttleupper; bankupper];
+
+% First Optimisation
+
+% Initial values for control and state variables
+
+y0 = [tBurn; -0.01;0;0;0;0; 0.9;0.9;0.9;0.9;0.9; 0;0;0;0;0];                      % Initial input
+x0 = [100;60;87*(pi/180);location.heading;location.lat;location.lon;vehicle.wet];
+options = optimoptions('fmincon','Display','iter-detailed','Algorithm','interior-point');
+
+% Checking initial values for objective and constraint fun
+Cost1(y0, x0)
+Confun1(y0, x0)
+
+% Running Optimiser
+
+tic
+[y_opt,fval1,exitflag1,output1] = fmincon(@(y) Cost1(y, x0),y0,[],[],[],[],LB,UB,@(y) Confun1(y, x0),options);
+toc 
+
+% Determining time span
+
+tspan = 0:1:y_opt(1);
+
+% Integrating first stage 
+
+xState1 = ode3(@(t,x,control) dynamics_model(t,x,y_opt),tspan,x0);
+
+% Second Optimisation
+
+throttlelower2 = zeros(5,1);
+throttleupper2 = ones(5,1)*0.01;
+
+LB2 = [80; alphalower; throttlelower2; banklower];
+UB2 = [220; alphaupper; throttleupper2; bankupper];
+
+y02 = [y_opt(1) + tCoast ; 0;0;0;0;0; 0;0;0;0;0; 0;0;0;0;0];
+x0t2 = xState1(end,:);
+x02 = x0t2';
+
+% Checking initial values for objective and constraint fun
+Cost2(y02, x02, y_opt)
+Confun2(y02, x02, y_opt)
+
+% Running 2nd Optimiser
+
+tic
+[y_opt2,fval2,exitflag2,output2] = fmincon(@(y2) Cost2(y2, x02, y_opt),y02,[],[],[],[],LB2,UB2,@(y2) Confun2(y2, x02, y_opt),options);
+toc 
+
+tspan2 = y_opt(1):1:y_opt2(1);
+
+xState2 = ode3(@(t,x,control) dynamics_model(t,x,y_opt2),tspan2,x02);
+
+% Third Optimisation
+
+LB3 = [180; alphalower; throttlelower2; banklower];
+UB3 = [400; alphaupper; throttleupper2; bankupper];
+
+y03 = [y_opt2 + tDescend; 0;0;0;0;0; 0;0;0;0;0; 0;0;0;0;0];
+x0t3 = xState2(end,:);
+x03 = x0t3';
+
+% Checking initial values for objective and constraint fun
+Cost3(y03, x03, y_opt2)
+Confun3(y03, x03, y_opt2)
+
+% Running 3rd Optimiser
+
+tic
+[y_opt3,fval3,exitflag3,output3] = fmincon(@(y3) Cost3(y3, x03, y_opt2),y03,[],[],[],[],LB3,UB3,@(y3) Confun2(y3, x03, y_opt2),options);
+toc 
+
+tspan3 = y_opt2(1):1:y_opt3(1);
+
+xState3 = ode3(@(t,x,control) dynamics_model(t,x,y_opt3),tspan3,x03);
+
+
